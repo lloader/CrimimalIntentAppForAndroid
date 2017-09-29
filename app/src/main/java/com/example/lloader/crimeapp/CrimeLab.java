@@ -3,12 +3,10 @@ package com.example.lloader.crimeapp;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.lloader.crimeapp.database.CrimeBaseHelper;
 import com.example.lloader.crimeapp.database.CrimeCursorWrapper;
-import com.example.lloader.crimeapp.database.CrimeDbSchema;
 import com.example.lloader.crimeapp.database.CrimeDbSchema.CrimeTable;
 
 import java.util.ArrayList;
