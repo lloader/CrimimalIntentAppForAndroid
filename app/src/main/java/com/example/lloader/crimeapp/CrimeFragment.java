@@ -45,6 +45,7 @@ public class CrimeFragment extends Fragment {
     private Button mTimeButton;
     private Button mReportButton;
     private Button mSuspectButton;
+    private Button mCallButton;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -83,6 +84,30 @@ public class CrimeFragment extends Fragment {
             } catch (NullPointerException e) {
                 return;
             }
+
+
+            String id = null;
+            try(final Cursor c = getActivity().getContentResolver()
+                    .query(uri, new String[] {ContactsContract.Contacts._ID}, null, null, null)) {
+                if(c.getCount() == 0) {
+                    return;
+                }
+                c.moveToFirst();
+                id = c.getString(0);
+            } catch (NullPointerException e) {}
+            try(final Cursor c = getActivity().getContentResolver()
+                    .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER},
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?", new String[] {id}, null)) {
+                if(c.getCount() == 0) {
+                    return;
+                }
+                c.moveToFirst();
+                final String phone = c.getString(0);
+                mCrime.setPhoneNumber(phone);
+                mCallButton.setEnabled(true);
+                Log.d(SingleFragmentActivity.LOG_TAG, "phone is " + phone);
+            } catch (NullPointerException e) {}
         }
     }
 
@@ -179,6 +204,19 @@ public class CrimeFragment extends Fragment {
             }
         });
 
+        mCallButton = (Button) view.findViewById(R.id.call_button);
+        mCallButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + mCrime.getPhoneNumber()));
+                startActivity(intent);
+            }
+        });
+
+        if(mCrime.getPhoneNumber() == null) {
+            mCallButton.setEnabled(false);
+        }
         if(mCrime.getSuspect() != null) {
             mSuspectButton.setText(mCrime.getSuspect());
         }

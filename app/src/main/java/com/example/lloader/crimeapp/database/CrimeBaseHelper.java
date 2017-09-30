@@ -30,7 +30,8 @@ public class CrimeBaseHelper extends SQLiteOpenHelper {
             CrimeTable.Cols.TITLE + ", " +
             CrimeTable.Cols.DATE + ", " +
             CrimeTable.Cols.SOLVED + ", " +
-            CrimeTable.Cols.SUSPECT +
+            CrimeTable.Cols.SUSPECT + ", " +
+            CrimeTable.Cols.PHONE +
                 ")");
         Log.d(SingleFragmentActivity.LOG_TAG, "database is created");
     }

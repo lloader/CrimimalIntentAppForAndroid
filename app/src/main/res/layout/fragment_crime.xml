@@ -34,6 +34,12 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/call_button"
+        android:text="CALl SUSpect"
+        />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/report_button"
         android:text="REPORT LOVI SUKA!"/>
     <CheckBox
