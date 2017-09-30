@@ -1,7 +1,9 @@
 /.idea/
 /*/src/androidTest/androidTest.iml
 /*/src/main/main.iml
+/*/src/app.iml
 /app/src/test/test.iml
 /build/
 app/src/main/gen/
 *.iml
+/.gradle/
