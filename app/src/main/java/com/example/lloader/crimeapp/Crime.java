@@ -12,8 +12,7 @@ public class Crime {
     private Date mDate;
     private String mName;
     private boolean mSolved;
-    private boolean mRequiresPolice;
-    private int mPosition;
+    private String mSuspect;
 
     public Crime() {
         mUUID = UUID.randomUUID();
@@ -53,23 +52,11 @@ public class Crime {
         mSolved = solved;
     }
 
-    public boolean isRequiresPolice() {
-        return mRequiresPolice;
+    public String getSuspect() {
+        return mSuspect;
     }
 
-    public void setRequiresPolice(boolean requiresPolice) {
-        mRequiresPolice = requiresPolice;
-    }
-
-    public boolean getRequiresPolice() {
-        return mRequiresPolice;
-    }
-
-    public int getPosition() {
-        return mPosition;
-    }
-
-    public void setPosition(int position) {
-        mPosition = position;
+    public void setSuspect(String suspect) {
+        mSuspect = suspect;
     }
 }

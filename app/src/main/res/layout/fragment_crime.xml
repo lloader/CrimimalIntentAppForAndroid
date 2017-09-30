@@ -25,7 +25,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/crime_time"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:id="@+id/suspect_button"
+        android:text="Choose Suspect"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/report_button"
+        android:text="REPORT LOVI SUKA!"/>
     <CheckBox
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="solved"

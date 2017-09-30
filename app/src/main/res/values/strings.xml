@@ -4,4 +4,13 @@
     <string name="show_subtitle">Show Subtitle</string>
     <string name="hide_subtitle">Hide Subtitle</string>
     <string name="subtitle_format">%1$d crimes</string>
+    <string name="crime_report">%1$s!\n
+    The crime was discovered on %2$s.\n %3$s and %4$s.
+    </string>
+    <string name="case_solved">The case is solved</string>
+    <string name="case_not_solved">The case is not solved</string>
+    <string name="no_suspect">There is no suspect</string>
+    <string name="exist_suspect">Suspect is %1$s!</string>
+    <string name="report_subject">CrimeApp Report</string>
+    <string name="send_report">Send report via...</string>
 </resources>

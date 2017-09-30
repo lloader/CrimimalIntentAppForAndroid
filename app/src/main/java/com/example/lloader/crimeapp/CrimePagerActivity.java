@@ -25,6 +25,7 @@ import static com.example.lloader.crimeapp.SingleFragmentActivity.LOG_TAG;
 
 public class CrimePagerActivity extends AppCompatActivity {
     private static final String CRIME_ID_EXTRA = "crime_id_intent";
+    private static final String CRIME_POS_EXTRA = "crime pos extra";
     private ViewPager mCrimePager;
     private PagerAdapter mCrimePagerAdapter;
     private List<Crime> mCrimes;
@@ -70,15 +71,13 @@ public class CrimePagerActivity extends AppCompatActivity {
 
         mCrimePager = (ViewPager) findViewById(R.id.crime_pager);
         mCrimePager.setAdapter(mCrimePagerAdapter);
-
-        final Crime crime = CrimeLab.getInstance(this).getCrime((UUID) getIntent().getSerializableExtra(CRIME_ID_EXTRA));
-        Log.d(LOG_TAG, "устанавливаю на экран Crime(" + crime.getUUID() + ")");
-        mCrimePager.setCurrentItem(crime.getPosition());
+        final int position = getIntent().getIntExtra(CRIME_POS_EXTRA, 0);
+        mCrimePager.setCurrentItem(position);
     }
 
-    public static Intent newIntent(final Context context, final UUID crimeId){
+    public static Intent newIntent(final Context context, final int position){
         final Intent intent = new Intent(context, CrimePagerActivity.class);
-        intent.putExtra(CRIME_ID_EXTRA, crimeId);
+        intent.putExtra(CRIME_POS_EXTRA, position);
         return intent;
     }
 }

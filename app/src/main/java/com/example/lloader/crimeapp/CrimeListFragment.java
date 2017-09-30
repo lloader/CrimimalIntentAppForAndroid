@@ -67,7 +67,7 @@ public class CrimeListFragment extends Fragment {
                 final Crime crime = new Crime();
                 crimeLab.addCrime(crime);
                 Log.d(SingleFragmentActivity.LOG_TAG, "Создан новый объект Crime(" + crime.getUUID() + ")");
-                final Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getUUID());
+                final Intent intent = CrimePagerActivity.newIntent(getActivity(), CrimeLab.getInstance(getContext()).getCrimes().size() - 1);
                 startActivity(intent);
                 return true;
             case R.id.show_subtitle:
@@ -121,6 +121,7 @@ public class CrimeListFragment extends Fragment {
         private TextView mCrimeDateTextView;
         private ImageView mCrimeSolvedImageView;
         private UUID mCrimeId;
+        private int mPosition;
 
         public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.crime_list_item, parent, false));
@@ -131,17 +132,18 @@ public class CrimeListFragment extends Fragment {
             itemView.setOnClickListener(this);
         }
 
-        public void bind(final Crime crime) {
+        public void bind(final Crime crime, int position) {
             mCrimeNameTextView.setText(crime.getName());
             final String day = DateFormat.format("EEEE, MMM d, yyyy", crime.getDate()).toString();
             mCrimeDateTextView.setText(day);
             mCrimeSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.INVISIBLE);
             mCrimeId = crime.getUUID();
+            mPosition = position;
         }
 
         @Override
         public void onClick(View view) {
-            startActivity(CrimePagerActivity.newIntent(getActivity(), mCrimeId));
+            startActivity(CrimePagerActivity.newIntent(getActivity(), mPosition));
         }
     }
 
@@ -162,7 +164,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
             final Crime crime = mCrimes.get(position);
-            holder.bind(crime);
+            holder.bind(crime, position);
         }
 
         @Override
