@@ -9,6 +9,7 @@ import com.example.lloader.crimeapp.database.CrimeBaseHelper;
 import com.example.lloader.crimeapp.database.CrimeCursorWrapper;
 import com.example.lloader.crimeapp.database.CrimeDbSchema.CrimeTable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class CrimeLab {
     private static CrimeLab sCrimeLab;
     private final Context mContext;
     private final SQLiteDatabase mCrimeBase;
+    public static String FILES_PATH = "com.example.lloader.crimeapp.fileprovider";
 
 
     private CrimeLab(final Context context) {
@@ -107,5 +109,10 @@ public class CrimeLab {
         );
 
         return new CrimeCursorWrapper(cursor);
+    }
+
+    public File getPhotoFile(final Crime crime) {
+        final File filesDir = mContext.getFilesDir();
+        return new File(filesDir, crime.getPhotoFileName());
     }
 }

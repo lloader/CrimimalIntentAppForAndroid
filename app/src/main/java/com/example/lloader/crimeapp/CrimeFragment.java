@@ -3,15 +3,18 @@ package com.example.lloader.crimeapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -23,8 +26,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
+import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -41,11 +48,15 @@ public class CrimeFragment extends Fragment {
     private static final int DATE_PICKER_REQUEST_CODE = 0x123;
     private static final int TIME_PICKER_REQUEST_CODE = 0x124;
     private static final int CHOOSE_SUSPECT_REQUEST_CODE = 0x125;
+    private static final int CREATE_PHOTO_REQUEST_CODE = 0x126;
     private Button mDateButton;
     private Button mTimeButton;
     private Button mReportButton;
     private Button mSuspectButton;
     private Button mCallButton;
+    private ImageView mPhotoView;
+    private ImageButton mPhotoButton;
+    private File mPhotoFile;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -109,6 +120,12 @@ public class CrimeFragment extends Fragment {
                 Log.d(SingleFragmentActivity.LOG_TAG, "phone is " + phone);
             } catch (NullPointerException e) {}
         }
+
+        if(requestCode == CREATE_PHOTO_REQUEST_CODE) {
+            final Uri uri = FileProvider.getUriForFile(getContext(), CrimeLab.FILES_PATH, mPhotoFile);
+            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            updatePhotoView();
+        }
     }
 
     @Override
@@ -116,6 +133,7 @@ public class CrimeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         final UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.getInstance(getActivity()).getCrime(crimeId);
+        mPhotoFile = CrimeLab.getInstance(getContext()).getPhotoFile(mCrime);
     }
 
     @Override
@@ -195,12 +213,12 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        final Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        final Intent pickPersonIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         mSuspectButton = (Button) view.findViewById(R.id.suspect_button);
         mSuspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(intent, CHOOSE_SUSPECT_REQUEST_CODE);
+                startActivityForResult(pickPersonIntent, CHOOSE_SUSPECT_REQUEST_CODE);
             }
         });
 
@@ -222,10 +240,38 @@ public class CrimeFragment extends Fragment {
         }
 
         final PackageManager manager = getActivity().getPackageManager();
-        if(manager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+        if(manager.resolveActivity(pickPersonIntent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
             mSuspectButton.setEnabled(false);
         }
 
+        mPhotoButton = (ImageButton) view.findViewById(R.id.make_photo_button);
+        mPhotoView = (ImageView) view.findViewById(R.id.crime_photo);
+
+        final Intent createPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        final boolean canTakePhoto = mPhotoFile != null &&
+                createPhotoIntent.resolveActivity(manager) != null;
+        mPhotoButton.setEnabled(canTakePhoto);
+
+        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Uri uri = FileProvider.getUriForFile(getContext(), CrimeLab.FILES_PATH, mPhotoFile);
+                createPhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+                List<ResolveInfo> cameraActivities = getActivity()
+                        .getPackageManager().queryIntentActivities(createPhotoIntent, PackageManager.MATCH_DEFAULT_ONLY);
+
+                for(ResolveInfo resolveInfo : cameraActivities) {
+                    getActivity().grantUriPermission(
+                            "activity.activityInfo.packageName",
+                            uri,
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                }
+                startActivityForResult(createPhotoIntent, CREATE_PHOTO_REQUEST_CODE);
+            }
+        });
+        updatePhotoView();
         return view;
     }
 
@@ -266,5 +312,13 @@ public class CrimeFragment extends Fragment {
         }
 
         return getString(R.string.crime_report, mCrime.getName(), dateString, solved, suspect);
+    }
+
+    private void updatePhotoView() {
+        if(mPhotoFile == null || !mPhotoFile.exists()) {
+            mPhotoView.setImageDrawable(null);
+        } else {
+            mPhotoView.setImageBitmap(PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity()));
+        }
     }
 }
