@@ -1,6 +1,7 @@
 package com.example.lloader.crimeapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -28,10 +29,30 @@ import java.util.UUID;
 
 public class CrimeListFragment extends Fragment {
 
+    /*
+        Activity-host musts implement this interface
+     */
+    public interface CallBacks {
+        void onCrimeSelected(final UUID crime, final int position);
+    }
+
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mCrimeHolderAdapter;
     private static final int CRIME_ACTIVITY_REQUEST_CODE = 1;
     private static final String CRIME_LIST_FRAGMENT_TAG = "CrimeListFragment";
+    private CallBacks mActivityHostCallBack;
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mActivityHostCallBack = null;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivityHostCallBack = (CallBacks) context;
+    }
 
     @Nullable
     @Override
@@ -67,8 +88,8 @@ public class CrimeListFragment extends Fragment {
                 final Crime crime = new Crime();
                 crimeLab.addCrime(crime);
                 Log.d(SingleFragmentActivity.LOG_TAG, "Создан новый объект Crime(" + crime.getUUID() + ")");
-                final Intent intent = CrimePagerActivity.newIntent(getActivity(), CrimeLab.getInstance(getContext()).getCrimes().size() - 1);
-                startActivity(intent);
+                updateUI();
+                mActivityHostCallBack.onCrimeSelected(crime.getUUID(), crimeLab.getCrimes().size());
                 return true;
             case R.id.show_subtitle:
                 updateSubtitle();
@@ -91,7 +112,7 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    private void updateUI() {
+    public void updateUI() {
         final List<Crime> crimes = CrimeLab.getInstance(getActivity()).getCrimes();
         if(mCrimeHolderAdapter == null) {
             mCrimeHolderAdapter = new CrimeAdapter(crimes);
@@ -143,7 +164,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            startActivity(CrimePagerActivity.newIntent(getActivity(), mPosition));
+            mActivityHostCallBack.onCrimeSelected(mCrimeId, mPosition);
         }
     }
 

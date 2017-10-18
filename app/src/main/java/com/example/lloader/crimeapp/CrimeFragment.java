@@ -1,6 +1,7 @@
 package com.example.lloader.crimeapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -29,6 +30,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.example.lloader.crimeapp.database.CrimeCursorWrapper;
+
 import java.io.File;
 import java.util.Date;
 import java.util.List;
@@ -39,6 +42,13 @@ import java.util.UUID;
  */
 
 public class CrimeFragment extends Fragment {
+
+    /*
+        Activity-host musts implement this interface
+     */
+    public interface CallBacks {
+        void onUpdateCrime();
+    }
 
     private Crime mCrime;
     private static final String ARG_CRIME_ID = "Crime_arg_id";
@@ -57,6 +67,19 @@ public class CrimeFragment extends Fragment {
     private ImageView mPhotoView;
     private ImageButton mPhotoButton;
     private File mPhotoFile;
+    private CallBacks mActivityHostCallBack;
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mActivityHostCallBack = null;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivityHostCallBack = (CallBacks) context;
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -140,7 +163,7 @@ public class CrimeFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        CrimeLab.getInstance(getActivity()).updateCrime(mCrime);
+        updateCrime();
     }
 
     @Nullable
@@ -158,11 +181,12 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 mCrime.setName(charSequence.toString());
+                updateCrime();
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                updateCrime();
             }
         });
 
@@ -185,6 +209,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mCrime.setSolved(b);
+                updateCrime();
             }
         });
 
@@ -264,7 +289,7 @@ public class CrimeFragment extends Fragment {
 
                 for(ResolveInfo resolveInfo : cameraActivities) {
                     getActivity().grantUriPermission(
-                            "activity.activityInfo.packageName",
+                            CrimeLab.FILES_PATH,
                             uri,
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 }
@@ -273,6 +298,11 @@ public class CrimeFragment extends Fragment {
         });
         updatePhotoView();
         return view;
+    }
+
+    private void updateCrime() {
+        CrimeLab.getInstance(getContext()).updateCrime(mCrime);
+        mActivityHostCallBack.onUpdateCrime();
     }
 
     public static Fragment newInstance(final UUID idCrime) {

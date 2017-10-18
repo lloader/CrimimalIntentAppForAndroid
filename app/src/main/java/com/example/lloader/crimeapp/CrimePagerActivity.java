@@ -23,7 +23,7 @@ import static com.example.lloader.crimeapp.SingleFragmentActivity.LOG_TAG;
  * Created by Alexander Garkavenko
  */
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity implements CrimeFragment.CallBacks {
     private static final String CRIME_ID_EXTRA = "crime_id_intent";
     private static final String CRIME_POS_EXTRA = "crime pos extra";
     private ViewPager mCrimePager;
@@ -79,5 +79,10 @@ public class CrimePagerActivity extends AppCompatActivity {
         final Intent intent = new Intent(context, CrimePagerActivity.class);
         intent.putExtra(CRIME_POS_EXTRA, position);
         return intent;
+    }
+
+    @Override
+    public void onUpdateCrime() {
+        //Nothing to do
     }
 }
